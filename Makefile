@@ -181,6 +181,14 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
+	_wolfietest\
+	_getNumProctest\
+	_getMaxPidtest\
+	_getProcInfotest\
+	_get_burst_timetest\
+	_set_burst_timetest\
+  _burst_test\
+  _test_scheduler\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -250,6 +258,14 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
+	wolfietest.c\
+	getNumProctest.c\
+	getMaxPidtest.c\
+	getProcInfotest.c\
+	get_burst_timetest.c\
+	set_burst_timetest.c\
+  test_scheduler.c\
+  burst_test.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
