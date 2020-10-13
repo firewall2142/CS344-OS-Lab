@@ -121,11 +121,12 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-int		 getNumProc(void);
-int		 getMaxPid(void);
-int		 getProcInfo(int, struct processInfo*);
-int		 get_burst_time(void);
-void		 set_burst_time(int);
+int             getNumProc(void);
+int             getMaxPid(void);
+int             getProcInfo(int, struct processInfo*);
+int             get_burst_time(void);
+void            set_burst_time(int);
+int             cps(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

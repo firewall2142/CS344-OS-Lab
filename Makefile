@@ -189,6 +189,7 @@ UPROGS=\
 	_set_burst_timetest\
   _burst_test\
   _test_scheduler\
+  _ps\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -266,6 +267,7 @@ EXTRA=\
 	set_burst_timetest.c\
   test_scheduler.c\
   burst_test.c\
+  test.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\

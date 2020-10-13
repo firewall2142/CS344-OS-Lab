@@ -22,7 +22,6 @@ main(int argc, char *argv[])
   int burstitr = numforks + 2;
   double dummy=0; // variable to waste cpu time
 
-  set_burst_time(0);
 
   for(int itr=0; itr < numforks; itr++){
     id = fork();
@@ -32,6 +31,7 @@ main(int argc, char *argv[])
       // child process
       // do some work
       printf(1, "Setting burst time = %d\n", burstitr);
+      printf(1, "c");
       set_burst_time(burstitr);
 
 

@@ -8,6 +8,11 @@
 #include "spinlock.h"
 #include "processInfo.h"
 
+
+
+// #define OLDSCHED
+
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -90,6 +95,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->numcntxtswtchs = 0;
+  p->bursts = 100;
 
   release(&ptable.lock);
 
@@ -321,7 +327,8 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
-/*
+
+#ifdef OLDSCHED
 void
 scheduler(void)
 {
@@ -358,7 +365,9 @@ scheduler(void)
 
   }
 }
-*/
+
+#else 
+
 void
 scheduler(void)
 {
@@ -366,7 +375,7 @@ scheduler(void)
   struct proc *chosen, *p1;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
@@ -380,11 +389,12 @@ scheduler(void)
 
       chosen = p;
       for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+        if(p1->state != RUNNABLE)
+          continue;
+
         if(chosen->bursts > p1->bursts)
           chosen = p1;
       }
-      
-
 
 
       // Switch to chosen process.  It is the process's job
@@ -406,7 +416,7 @@ scheduler(void)
 
   }
 }
-
+#endif
 
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -416,7 +426,7 @@ scheduler(void)
 // be proc->intena and proc->ncli, but that would
 // break in the few places where a lock is held but
 // there's no process.
-  void
+void
 sched(void)
 {
   int intena;
@@ -436,7 +446,7 @@ sched(void)
 }
 
 // Give up the CPU for one scheduling round.
-  void
+void
 yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
@@ -447,7 +457,7 @@ yield(void)
 
 // A fork child's very first scheduling by scheduler()
 // will swtch here.  "Return" to user space.
-  void
+void
 forkret(void)
 {
   static int first = 1;
@@ -468,11 +478,11 @@ forkret(void)
 
 // Atomically release lock and sleep on chan.
 // Reacquires lock when awakened.
-  void
+void
 sleep(void *chan, struct spinlock *lk)
 {
   struct proc *p = myproc();
-
+  
   if(p == 0)
     panic("sleep");
 
@@ -508,7 +518,7 @@ sleep(void *chan, struct spinlock *lk)
 //PAGEBREAK!
 // Wake up all processes sleeping on chan.
 // The ptable lock must be held.
-  static void
+static void
 wakeup1(void *chan)
 {
   struct proc *p;
@@ -519,7 +529,7 @@ wakeup1(void *chan)
 }
 
 // Wake up all processes sleeping on chan.
-  void
+void
 wakeup(void *chan)
 {
   acquire(&ptable.lock);
@@ -530,7 +540,7 @@ wakeup(void *chan)
 // Kill the process with the given pid.
 // Process won't exit until it returns
 // to user space (see trap in trap.c).
-  int
+int
 kill(int pid)
 {
   struct proc *p;
@@ -554,16 +564,16 @@ kill(int pid)
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
 // No lock to avoid wedging a stuck machine further.
-  void
+void
 procdump(void)
 {
   static char *states[] = {
-    [UNUSED]    "unused",
-    [EMBRYO]    "embryo",
-    [SLEEPING]  "sleep ",
-    [RUNNABLE]  "runble",
-    [RUNNING]   "run   ",
-    [ZOMBIE]    "zombie"
+  [UNUSED]    "unused",
+  [EMBRYO]    "embryo",
+  [SLEEPING]  "sleep ",
+  [RUNNABLE]  "runble",
+  [RUNNING]   "run   ",
+  [ZOMBIE]    "zombie"
   };
   int i;
   struct proc *p;
@@ -596,21 +606,21 @@ int getNumProc(void)
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
-    if (p->state == SLEEPING)
+     if (p->state == SLEEPING)
       count++;
     else if (p->state == RUNNING)
       count++;
     else if (p->state == RUNNABLE)
       count++;
     else if (p->state == EMBRYO)
-      count++;
+    	count++;
     else if (p->state == ZOMBIE)
-      count++;
+    	count++;
   }
 
   release(&ptable.lock);
 
-  return count;
+ return count;
 }
 
 int getMaxPid()
@@ -623,9 +633,9 @@ int getMaxPid()
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if(MaxPid < p->pid && p->state!=UNUSED)	
-      MaxPid = p->pid;
+    MaxPid = p->pid;
   }
-
+  
   release(&ptable.lock);
 
   return MaxPid;
@@ -633,31 +643,61 @@ int getMaxPid()
 
 int getProcInfo(int Pid, struct processInfo* process_a){
 
-  struct proc *p;
-  acquire(&ptable.lock);
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-  {
-    if(p->pid==Pid) 
-    {
-      process_a->ppid=p->parent->pid;
-      process_a->psize=(int)p->sz;
-      process_a->numberContextSwitches=p->numcntxtswtchs;
-      release(&ptable.lock);
-      return 0;
-    }
-  }	
-  release(&ptable.lock);
-  return -1;
+	struct proc *p;
+	acquire(&ptable.lock);
+	for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  	{
+    		if(p->pid==Pid) 
+    		{
+    			process_a->ppid=p->parent->pid;
+    			process_a->psize=(int)p->sz;
+    			process_a->numberContextSwitches=p->numcntxtswtchs;
+    			release(&ptable.lock);
+    			return 0;
+		}
+  	}	
+  	release(&ptable.lock);
+	return -1;
 }
 
 void set_burst_time(int n){
-  struct proc *p=myproc();
-  p->bursts=n;
+	struct proc *p=myproc();
+	p->bursts=n;
 }
 
 int get_burst_time(){
-  struct proc *p=myproc();
-  return p->bursts;
+	struct proc *p=myproc();
+	return p->bursts;
 }
 
+//current process status
+int
+cps()
+{
+  static char *states[] = { 
+    [UNUSED]    "unused",
+    [EMBRYO]    "embryo",
+    [SLEEPING]  "sleep ",
+    [RUNNABLE]  "runble",
+    [RUNNING]   "run   ",
+    [ZOMBIE]    "zombie"
+  };
 
+  struct proc *p; 
+
+  // Enable interrupts on this processor.
+  sti();
+
+  // Loop over process table looking for process with pid.
+  acquire(&ptable.lock);
+  
+  cprintf("name \t pid \t state \t bursts\n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == UNUSED) continue;
+    cprintf("%s\t %d \t %s \t %d\n", p->name, p->pid, states[p->state], p->bursts);
+  }
+
+  release(&ptable.lock);
+
+  return 69; 
+} 

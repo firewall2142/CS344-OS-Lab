@@ -26,3 +26,4 @@
 #define SYS_getProcInfo 25
 #define SYS_set_burst_time 26
 #define SYS_get_burst_time 27
+#define SYS_cps    28

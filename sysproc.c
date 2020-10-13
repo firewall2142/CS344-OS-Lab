@@ -184,9 +184,14 @@ int
 sys_set_burst_time(void)
 {
 	int n;
-	argint(1,(int*)&n);
+	argint(0,(int*)&n);
 	if(n<1||n>20) return -1;
 	else {set_burst_time(n);
 	return 0;}
 }
 
+int
+sys_cps(void)
+{
+  return cps();
+}

@@ -30,6 +30,7 @@ int getMaxPid(void);
 int getProcInfo(int,struct processInfo*);
 int get_burst_time(void);
 void set_burst_time(int);
+int cps(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
