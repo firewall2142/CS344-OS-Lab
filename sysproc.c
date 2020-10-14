@@ -195,3 +195,12 @@ sys_cps(void)
 {
   return cps();
 }
+
+int
+sys_chpr(void)
+{
+  int pid, bursts;
+  argint(0, &pid);
+  argint(1, &bursts);
+  return chpr(pid, bursts);
+}

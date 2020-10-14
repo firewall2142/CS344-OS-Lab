@@ -188,7 +188,7 @@ UPROGS=\
 	_get_burst_timetest\
 	_set_burst_timetest\
   _burst_test\
-  _test_scheduler\
+  _tstsch\
   _ps\
 
 fs.img: mkfs README $(UPROGS)
@@ -265,7 +265,7 @@ EXTRA=\
 	getProcInfotest.c\
 	get_burst_timetest.c\
 	set_burst_timetest.c\
-  test_scheduler.c\
+  tstsch.c\
   burst_test.c\
   test.c\
 	printf.c umalloc.c\

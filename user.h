@@ -31,6 +31,7 @@ int getProcInfo(int,struct processInfo*);
 int get_burst_time(void);
 void set_burst_time(int);
 int cps(void);
+int chpr(int pid, int bursts);
 
 // ulib.c
 int stat(const char*, struct stat*);

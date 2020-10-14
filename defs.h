@@ -127,6 +127,7 @@ int             getProcInfo(int, struct processInfo*);
 int             get_burst_time(void);
 void            set_burst_time(int);
 int             cps(void);
+int             chpr(int, int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

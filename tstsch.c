@@ -2,12 +2,17 @@
 #include "user.h"
 
 
+const double workmult = 10000.0;
 
 int
 main(int argc, char *argv[])
 {
+
+  set_burst_time(1);
+
+  cps();
+
   int numforks = 10;
-  double workmult = 1e4;
   int work = 100;
   
 
@@ -30,22 +35,22 @@ main(int argc, char *argv[])
     } else if(id == 0){
       // child process
       // do some work
-      printf(1, "Setting burst time = %d\n", burstitr);
-      printf(1, "c");
+      // printf(1, "Setting burst time = %d\n", burstitr);
       set_burst_time(burstitr);
 
 
-      dummy = 0;
-      while(dummy/work < workmult){
-        dummy += 2.731423 * 0.459045;
-      }
+      for(dummy = 0; dummy < workmult*work; dummy += 0.23*4.32);
+
       break;
 
     } else {
+      if(chpr(id, burstitr) == -1)
+        printf(1, "pid = %d not found!\n", id);
       burstitr--;
       // parent
+      // cps();
 
-      //printf(1, "Waiting for child %d to finish\n", id);
+      // printf(1, "Waiting for child %d to finish\n", id);
 
       // wait for the child to finish
       // wait();
